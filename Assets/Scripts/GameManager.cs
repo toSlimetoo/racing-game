@@ -22,6 +22,9 @@ public class GameManager : MonoBehaviour
     
     private int gas = 100;
 
+    private float moveSpeed = 10f;
+    
+    
     private void Awake()
     {
         Time.timeScale = 0;
@@ -35,9 +38,10 @@ public class GameManager : MonoBehaviour
 
         StartCoroutine(CreateItem());
         StartCoroutine(MovaMap());
-        
+        StartCoroutine(MoveItem());
+        StartCoroutine(Gas());
         gasText.text = gas.ToString();
-
+        
     }
 
     // Update is called once per frame
@@ -47,7 +51,8 @@ public class GameManager : MonoBehaviour
 
         if (instance != null)
         {
-            if (player.transform.position.x==instance.transform.position.x&&player.transform.position.y==instance.transform.position.y)
+            if (player.transform.position.x+0.5f>=instance.transform.position.x&&player.transform.position.x-0.5f<=instance.transform.position.x
+                                                                               &&player.transform.position.y+0.5f>=instance.transform.position.y&&player.transform.position.y-0.5f<=instance.transform.position.y)
             {
                 Debug.Log("가스 획득");
                 gas += 30;
@@ -68,7 +73,7 @@ public class GameManager : MonoBehaviour
             
         }
 
-        if (instance!=null&&instance.transform.position.y <= -5)
+        if (instance!=null&&instance.transform.position.y <= -4)
         {
             Destroy(instance.gameObject);
             instance = null;
@@ -81,29 +86,51 @@ public class GameManager : MonoBehaviour
         {
             for (int i = 0; i < map.Length; i++)
             {
-                map[i].transform.position -=Vector3.up;
-                if (map[i].transform.position.y < -30)
+                float newY = Mathf.MoveTowards(map[i].transform.position.y, -30, moveSpeed * Time.deltaTime);
+                map[i].transform.position = new Vector3(map[i].transform.position.x, newY, map[i].transform.position.z);
+                
+                
+                if (map[i].transform.position.y < -15)
                 {
                     map[i].transform.position = new Vector3(map[i].transform.position.x, 15, map[i].transform.position.z);
                     
                 }
             }
-
-            if (instance != null)
-            {
-                instance.transform.position -= Vector3.up*2;
-                
-            }
-            gas -= 5;
-            gasText.text = gas.ToString();
-            yield return new WaitForSeconds(1f);
-            
-            
-            
+            yield return null;
         }
            
     }
 
+    IEnumerator MoveItem()
+    {
+        while (true)
+        {
+            if (instance != null)
+            {
+                float newY = Mathf.MoveTowards(instance.transform.position.y, -5, moveSpeed*0.5f* Time.deltaTime);
+                instance.transform.position = new Vector3(instance.transform.position.x, newY, instance.transform.position.z);
+                
+            }
+            
+            yield return null;
+        }
+        
+    }
+
+    IEnumerator Gas()
+    {
+        while (true)
+        {
+            gas -= 10;
+            gasText.text = gas.ToString();
+            yield return new WaitForSeconds(1f);
+            
+        }
+        
+    }
+    
+    
+    
     
     IEnumerator CreateItem()
     {
@@ -116,7 +143,7 @@ public class GameManager : MonoBehaviour
                 int randomValue = Random.Range(0, options.Length);
                 GameObject newitem = Instantiate(item,new Vector3(options[randomValue],7,0),Quaternion.identity);
                 instance = newitem;
-                yield return new WaitForSeconds(5f);
+                yield return new WaitForSeconds(3f);
             }
 
             yield return null;

@@ -92,7 +92,7 @@ public class GameManager : MonoBehaviour
                 
                 if (map[i].transform.position.y < -15)
                 {
-                    map[i].transform.position = new Vector3(map[i].transform.position.x, 15, map[i].transform.position.z);
+                    map[i].transform.position = new Vector3(map[i].transform.position.x, 20, map[i].transform.position.z);
                     
                 }
             }
